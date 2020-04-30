@@ -122,5 +122,5 @@ data["patients_summary"] = {
     "date": dt_update,
 }
 
-with open("../data.json", "w", encoding="utf-8") as fw:
+with open("./data/data.json", "w", encoding="utf-8") as fw:
     json.dump(data, fw, ignore_nan=True, ensure_ascii=False, indent=4)
