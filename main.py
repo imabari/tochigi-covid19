@@ -42,7 +42,13 @@ df_kensa.rename(columns={("検査日", "Unnamed: 0_level_1"): "検査日"}, inpl
 
 df_kensa.set_index("検査日", inplace=True)
 
+df_kensa = df_kensa.astype("Int64").fillna(0)
+
 df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%d")
+
+# 委託分を合算
+df_kensa[ ("検査件数", "栃木県")] += df_kensa[("検査件数", "県委託分")]
+df_kensa[ ("検査件数", "宇都宮市")] += df_kensa[("検査件数", "市委託分")]
 
 df_insp_sum = df_kensa.loc[:, ["日付", ("検査件数", "栃木県"), ("検査件数", "宇都宮市")]]
 
