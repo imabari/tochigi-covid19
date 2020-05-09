@@ -68,6 +68,7 @@ df_kanja = pd.read_excel(link_kanja, index_col="番号", header=1, skipfooter=2)
 df_kanja["陽性判明日"] = df_kanja["陽性判明日"].apply(
     lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
 )
+df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
 df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors='coerce')
 df_kanja["退院日"] = df_kanja["退院日"].apply(
     lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
