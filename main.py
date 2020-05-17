@@ -63,19 +63,19 @@ tag_kanja = soup.find("a", text=re.compile("^栃木県における新型コロ�
 
 link_kanja = urljoin(url, tag_kanja.get("href"))
 
-df_kanja = pd.read_excel(link_kanja, index_col="番号", header=1, skipfooter=2)
+df_kanja = pd.read_excel(link_kanja, header=1, skipfooter=2)
 
-df_kanja["陽性判明日"] = df_kanja["陽性判明日"].apply(
-    lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
-)
 df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
-df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors='coerce')
-df_kanja["退院日"] = df_kanja["退院日"].apply(
-    lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
-)
 
+# 備考内に削除がある場合は除外
+df_kanja["備考"] = df_kanja["備考"].fillna("").astype(str)
+df_kanja = df_kanja[~df_kanja["備考"].str.contains("削除")]
+
+df_kanja["陽性判明日"] = df_kanja["陽性判明日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
+df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors='coerce')
+df_kanja["退院日"] = df_kanja["退院日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
 df_kanja["退院"] = df_kanja["退院日"].dt.strftime("%Y-%m-%d")
-df_kanja["状態"] = "入院中"
+df_kanja["状態"]  = "入院中"
 df_kanja["状態"] = df_kanja["状態"].where(df_kanja["退院日"].isnull(), "退院")
 
 ## main_summary
@@ -103,7 +103,7 @@ data["main_summary"] = {
 
 df_kanja["リリース日"] = df_kanja["陽性判明日"].dt.strftime("%Y-%m-%d")
 
-df_patients = df_kanja.loc[:, ["リリース日", "居住地", "年代", "性別", "退院"]]
+df_patients = df_kanja.loc[:, ["番号", "リリース日", "居住地", "年代", "性別","退院"]]
 
 data["patients"] = {
     "data": df_patients.to_dict(orient="records"),
