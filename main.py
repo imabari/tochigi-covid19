@@ -112,13 +112,12 @@ data["patients"] = {
 
 ## patients_summary
 
-df_patients_sum = (
-    df_kanja["陽性判明日"]
-    .value_counts()
-    .sort_index()
-    .asfreq("D", fill_value=0)
-    .reset_index()
-)
+ser_patients_sum = df_kanja["陽性判明日"].value_counts().sort_index()
+
+if df_kensa.index[-1] not in ser_patients_sum.index:
+    ser_patients_sum[df_kensa.index[-1]] = 0
+
+df_patients_sum = ser_patients_sum.asfreq("D", fill_value=0).reset_index()
 
 df_patients_sum["日付"] = df_patients_sum["index"].dt.strftime("%Y-%m-%d")
 df_patients_sum.rename(columns={"陽性判明日": "小計"}, inplace=True)
