@@ -65,6 +65,9 @@ link_kanja = urljoin(url, tag_kanja.get("href"))
 
 df_kanja = pd.read_excel(link_kanja, header=1, skipfooter=2)
 
+df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]] = df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]].fillna(method="ffill")
+df_kanja["番号"] = df_kanja["番号"].astype(int)
+
 df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
 
 # 備考内に削除がある場合は除外
