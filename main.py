@@ -67,6 +67,7 @@ df_kanja = pd.read_excel(link_kanja, header=1, skipfooter=2)
 
 df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]] = df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]].fillna(method="ffill")
 df_kanja["番号"] = df_kanja["番号"].astype(int)
+df_kanja.drop_duplicates(subset="番号", keep="first", inplace=True)
 
 df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
 
