@@ -77,7 +77,7 @@ df_kanja = df_kanja[~df_kanja["備考"].str.contains("削除")]
 # 再陽性を削除　
 df_kanja.drop_duplicates(subset="番号", keep="first", inplace=True)
 
-df_kanja["陽性判明日"] = df_kanja["陽性判明日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
+df_kanja["陽性確認日"] = df_kanja["陽性確認日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
 df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors='coerce')
 df_kanja["退院日"] = df_kanja["退院日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
 df_kanja["退院"] = df_kanja["退院日"].dt.strftime("%Y-%m-%d")
@@ -107,7 +107,7 @@ data["main_summary"] = {
 
 ## patients
 
-df_kanja["リリース日"] = df_kanja["陽性判明日"].dt.strftime("%Y-%m-%d")
+df_kanja["リリース日"] = df_kanja["陽性確認日"].dt.strftime("%Y-%m-%d")
 
 df_patients = df_kanja.loc[:, ["番号", "リリース日", "居住地", "年代", "性別","退院"]]
 
@@ -118,7 +118,7 @@ data["patients"] = {
 
 ## patients_summary
 
-ser_patients_sum = df_kanja["陽性判明日"].value_counts().sort_index()
+ser_patients_sum = df_kanja["陽性確認日"].value_counts().sort_index()
 
 if df_kensa.index[-1] not in ser_patients_sum.index:
     ser_patients_sum[df_kensa.index[-1]] = 0
