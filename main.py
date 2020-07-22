@@ -1,5 +1,6 @@
 import datetime
 import re
+import argparse
 from urllib.parse import urljoin
 
 import pandas as pd
@@ -7,6 +8,11 @@ import requests
 from bs4 import BeautifulSoup
 
 import simplejson as json
+
+# プログラム引数解析
+ap = argparse.ArgumentParser()
+ap.add_argument('--output', '-o', default='./data/data.json')
+args = ap.parse_args()
 
 JST = datetime.timezone(datetime.timedelta(hours=+9), "JST")
 
@@ -131,5 +137,5 @@ data["patients_summary"] = {
     "date": dt_update,
 }
 
-with open("./data/data.json", "w", encoding="utf-8") as fw:
+with open(args.output, "w", encoding="utf-8") as fw:
     json.dump(data, fw, ignore_nan=True, ensure_ascii=False, indent=4)
