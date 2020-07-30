@@ -11,7 +11,7 @@ import simplejson as json
 
 # プログラム引数解析
 ap = argparse.ArgumentParser()
-ap.add_argument('--output', '-o', default='./data/data.json')
+ap.add_argument("--output", "-o", default="./data/data.json")
 args = ap.parse_args()
 
 JST = datetime.timezone(datetime.timedelta(hours=+9), "JST")
@@ -53,8 +53,8 @@ df_kensa = df_kensa.astype("Int64").fillna(0)
 df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%d")
 
 # 委託分を合算
-df_kensa[ ("検査件数", "栃木県")] += df_kensa[("検査件数", "県委託分")]
-df_kensa[ ("検査件数", "宇都宮市")] += df_kensa[("検査件数", "市委託分")]
+df_kensa[("検査件数", "栃木県")] += df_kensa[("検査件数", "県委託分")]
+df_kensa[("検査件数", "宇都宮市")] += df_kensa[("検査件数", "市委託分")]
 
 df_insp_sum = df_kensa.loc[:, ["日付", ("検査件数", "栃木県"), ("検査件数", "宇都宮市")]]
 
@@ -71,7 +71,9 @@ link_kanja = urljoin(url, tag_kanja.get("href"))
 
 df_kanja = pd.read_excel(link_kanja, header=1, skipfooter=1)
 
-df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]] = df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]].fillna(method="ffill")
+df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]] = df_kanja.loc[
+    :, ["番号", "年代", "性別", "居住地"]
+].fillna(method="ffill")
 df_kanja["番号"] = df_kanja["番号"].astype(int)
 
 df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
@@ -80,14 +82,18 @@ df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
 df_kanja["備考"] = df_kanja["備考"].fillna("").astype(str)
 df_kanja = df_kanja[~df_kanja["備考"].str.contains("削除")]
 
-# 再陽性を削除　
+# 再陽性を削除
 df_kanja.drop_duplicates(subset="番号", keep="first", inplace=True)
 
-df_kanja["陽性確認日"] = df_kanja["陽性確認日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
-df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors='coerce')
-df_kanja["退院日"] = df_kanja["退院日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
+df_kanja["陽性確認日"] = df_kanja["陽性確認日"].apply(
+    lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
+)
+df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors="coerce")
+df_kanja["退院日"] = df_kanja["退院日"].apply(
+    lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
+)
 df_kanja["退院"] = df_kanja["退院日"].dt.strftime("%Y-%m-%d")
-df_kanja["状態"]  = "入院中"
+df_kanja["状態"] = "入院中"
 df_kanja["状態"] = df_kanja["状態"].where(df_kanja["退院日"].isnull(), "退院")
 
 ## main_summary
@@ -97,7 +103,7 @@ sr_situ = sr_situ.reindex(["入院中", "退院", "死亡"], fill_value=0)
 
 data["main_summary"] = {
     "attr": "検査実施人数",
-    "value": int(df_kensa.iloc[-1][("累積検査件数", "合計")]),
+    "value": int(df_kensa[("累積検査件数", "合計")].tail(1)),
     "children": [
         {
             "attr": "陽性患者数",
@@ -115,7 +121,7 @@ data["main_summary"] = {
 
 df_kanja["リリース日"] = df_kanja["陽性確認日"].dt.strftime("%Y-%m-%d")
 
-df_patients = df_kanja.loc[:, ["番号", "リリース日", "居住地", "年代", "性別","退院"]]
+df_patients = df_kanja.loc[:, ["番号", "リリース日", "居住地", "年代", "性別", "退院"]]
 
 data["patients"] = {
     "data": df_patients.to_dict(orient="records"),
