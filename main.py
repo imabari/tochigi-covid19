@@ -42,7 +42,7 @@ tag_kensa = soup.find("a", text=re.compile("^新型コロナウイルス感染�
 
 link_kensa = urljoin(url, tag_kensa.get("href"))
 
-df_kensa = pd.read_excel(link_kensa, header=[1, 2], skipfooter=1)
+df_kensa = pd.read_excel(link_kensa, header=[1, 2])
 df_kensa.columns = df_kensa.columns.to_flat_index()
 df_kensa.rename(columns={("検査日", "Unnamed: 0_level_1"): "検査日"}, inplace=True)
 
