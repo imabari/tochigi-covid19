@@ -50,6 +50,8 @@ df_kensa.set_index("検査日", inplace=True)
 
 df_kensa = df_kensa.astype("Int64").fillna(0)
 
+df_kensa.sort_index(inplace=True)
+
 df_kensa["日付"] = df_kensa.index.strftime("%Y-%m-%d")
 
 # 委託分を合算
