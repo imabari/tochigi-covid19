@@ -12,6 +12,7 @@ import simplejson as json
 # プログラム引数解析
 ap = argparse.ArgumentParser()
 ap.add_argument("--output", "-o", default="./data/data.json")
+ap.add_argument('--deaths', "-d", type=int, default=0)
 args = ap.parse_args()
 
 JST = datetime.timezone(datetime.timedelta(hours=+9), "JST")
@@ -112,8 +113,8 @@ data["main_summary"] = {
             "value": len(df_kanja),
             "children": [
                 {"attr": "入院中", "value": int(sr_situ["入院中"])},
-                {"attr": "退院", "value": int(sr_situ["退院"])},
-                {"attr": "死亡", "value": int(sr_situ["死亡"])},
+                {"attr": "退院", "value": int(sr_situ["退院"]) - args.deaths},
+                {"attr": "死亡", "value": int(sr_situ["死亡"]) + args.deaths},
             ],
         }
     ],
