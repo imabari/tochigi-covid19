@@ -135,8 +135,10 @@ data["patients"] = {
 
 ser_patients_sum = df_kanja["陽性確認日"].value_counts().sort_index()
 
-if df_kensa.index[-1] not in ser_patients_sum.index:
+if df_kensa.index[-1] > ser_patients_sum.index[-1]:
     ser_patients_sum[df_kensa.index[-1]] = 0
+
+ser_patients_sum.sort_index(inplace=True)
 
 df_patients_sum = pd.DataFrame({"小計": ser_patients_sum.asfreq("D", fill_value=0)})
 df_patients_sum["日付"] = df_patients_sum.index.strftime("%Y-%m-%d")
