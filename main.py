@@ -47,6 +47,16 @@ df_kensa = pd.read_excel(link_kensa, header=[1, 2])
 df_kensa.columns = df_kensa.columns.to_flat_index()
 df_kensa.rename(columns={("検査日", "Unnamed: 0_level_1"): "検査日"}, inplace=True)
 
+flg_is_serial = df_kensa["検査日"].astype('str').str.isdigit()
+
+# 日付のシリアルと文字対応
+if flg_is_serial.sum():
+
+    fromSerial = pd.to_datetime(df_kensa.loc[flg_is_serial, "検査日"].astype(float), unit="D", origin=pd.Timestamp("1899/12/30"))
+    fromString = pd.to_datetime(df_kensa.loc[~flg_is_serial, "検査日"])
+
+    df_kensa["検査日"] = pd.concat([fromString, fromSerial])
+
 df_kensa.set_index("検査日", inplace=True)
 
 df_kensa = df_kensa.astype("Int64").fillna(0)
