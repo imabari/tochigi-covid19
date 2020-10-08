@@ -84,34 +84,21 @@ link_kanja = urljoin(url, tag_kanja.get("href"))
 
 df_kanja = pd.read_excel(link_kanja, header=1, skipfooter=1)
 
-df_kanja.mask(df_kanja.isin([" ", "　"]), inplace=True)
-
-df_kanja.dropna(thresh=5, inplace=True)
-df_kanja.dropna(subset=["番号"], inplace=True)
-
-df_kanja.loc[:, ["番号", "年代", "性別", "居住地"]] = df_kanja.loc[
-    :, ["番号", "年代", "性別", "居住地"]
-].fillna(method="ffill")
-df_kanja["番号"] = df_kanja["番号"].astype(int)
-
-df_kanja.rename(columns={"退院･退所日": "退院日"}, inplace=True)
+df_kanja.rename(columns={"退院･退所日": "退院日", "備考（No.は症例番号）": "備考"}, inplace=True)
 
 # 備考内に削除がある場合は除外
-df_kanja["備考"] = df_kanja["備考"].fillna("").astype(str)
+df_kanja["備考"] = df_kanja["備考"].fillna("").astype(str).str.strip()
 df_kanja = df_kanja[~df_kanja["備考"].str.contains("削除")]
 
-# 再陽性を削除
-df_kanja.drop_duplicates(subset="番号", keep="first", inplace=True)
+df_kanja.dropna(subset=["番号"], inplace=True)
 
-df_kanja["陽性確認日"] = df_kanja["陽性確認日"].apply(
-    lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
-)
-df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors="coerce")
-df_kanja["退院日"] = df_kanja["退院日"].apply(
-    lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30"))
-)
+df_kanja["番号"] = df_kanja["番号"].astype(int)
+
+df_kanja["陽性確認日"] = df_kanja["陽性確認日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
+df_kanja["退院日"] = pd.to_numeric(df_kanja["退院日"], errors='coerce')
+df_kanja["退院日"] = df_kanja["退院日"].apply(lambda date: pd.to_datetime(date, unit="D", origin=pd.Timestamp("1899/12/30")))
 df_kanja["退院"] = df_kanja["退院日"].dt.strftime("%Y-%m-%d")
-df_kanja["状態"] = "入院中"
+df_kanja["状態"]  = "入院中"
 df_kanja["状態"] = df_kanja["状態"].where(df_kanja["退院日"].isnull(), "退院")
 
 ## main_summary
